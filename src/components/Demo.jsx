@@ -176,7 +176,10 @@ const Demo = () => {
                           bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0
                           transition-opacity group-hover:opacity-100`}
             >
-              This Month&apos;s OpenAI Remaining Request
+              {remainingRequests === "0"
+                ? "This Month's OpenAI Request Limit Reached"
+                : "This Month's OpenAI Remaining Requests"
+              }
             </span>
           </div>
         </div>
