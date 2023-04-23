@@ -164,21 +164,23 @@ const Demo = () => {
       </div>
 
       {/* Display Request Remaining with Tooltip */}
-      <div className='p-10'>
-        <div className='group relative'>
-          <button type='button' className='fixed bottom-3 right-3 font-inter font-bold text-lg p-2 orange_gradient'>
-            {remainingRequests}
-          </button>
-          <span
-            className={`pointer-events-none fixed bottom-3 right-16 
-            font-inter p-2 text-lg font-bold border-black border-2 rounded-lg
-            bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0
-            transition-opacity group-hover:opacity-100`}
-          >
-            OpenAI Remaining Request For This Month
-          </span>
+      {remainingRequests !== '100' && (
+        <div className='p-10'>
+          <div className='group relative'>
+            <button type='button' className='fixed bottom-3 right-3 font-inter font-bold text-lg p-2 orange_gradient'>
+              {remainingRequests}
+            </button>
+            <span
+              className={`pointer-events-none fixed bottom-3 right-16 
+                          font-inter p-2 text-lg font-bold border-black border-2 rounded-lg
+                          bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0
+                          transition-opacity group-hover:opacity-100`}
+            >
+              This Month&apos;s OpenAI Remaining Request
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };
