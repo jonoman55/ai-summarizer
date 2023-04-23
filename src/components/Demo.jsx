@@ -6,7 +6,7 @@ import { useLazyGetSummaryQuery } from '../services/article';
 /**
  * Initial Article State
  */
-const articleInitalState = {
+const initialArticleState = {
   url: '',
   summary: '',
 };
@@ -15,19 +15,35 @@ const articleInitalState = {
  * Demo Component
  */
 const Demo = () => {
-  const [article, setArticle] = useState(articleInitalState);
+  const [article, setArticle] = useState(initialArticleState);
   const [allArticles, setAllArticles] = useState([]);
   const [copied, setCopied] = useState('');
+  const [remainingRequests, setRemainingRequests] = useState(() => {
+    const savedLimit = localStorage.getItem('remaining_requests');
+    const parsedLimit = JSON.parse(savedLimit)
+    return parsedLimit || '100';
+  });
 
   // RTK lazy query
-  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+  const [getSummary, { error, isFetching, isSuccess }] = useLazyGetSummaryQuery();
 
-  // Load data from localStorage on mount
+  // Load new requests remaining value from localStorage after new getSummary request
+  useEffect(() => {
+    if (!isFetching && isSuccess) {
+      const requestsRemainingFromLocalStorage = JSON.parse(
+        localStorage.getItem('remaining_requests')
+      );
+      if (requestsRemainingFromLocalStorage) {
+        setRemainingRequests(requestsRemainingFromLocalStorage);
+      }
+    }
+  }, [isFetching, isSuccess]);
+
+  // Load article history from localStorage on mount
   useEffect(() => {
     const articlesFromLocalStorage = JSON.parse(
       localStorage.getItem('articles')
     );
-
     if (articlesFromLocalStorage) {
       setAllArticles(articlesFromLocalStorage);
     }
@@ -46,7 +62,6 @@ const Demo = () => {
     if (data?.summary) {
       const newArticle = { ...article, summary: data.summary };
       const updatedAllArticles = [newArticle, ...allArticles];
-
       // update state and local storage
       setArticle(newArticle);
       setAllArticles(updatedAllArticles);
@@ -69,7 +84,7 @@ const Demo = () => {
 
   return (
     <section className='mt-16 w-full max-w-xl'>
-      {/* Search */}
+      {/* Article Search */}
       <div className='flex flex-col w-full gap-2'>
         <form
           className='relative flex justify-center items-center'
@@ -96,8 +111,8 @@ const Demo = () => {
             <p>↵</p>
           </button>
         </form>
-        
-        {/* Browse History */}
+
+        {/* Article History */}
         <div className='flex flex-col gap-1 max-h-60 overflow-y-auto'>
           {allArticles.reverse().map((item, index) => (
             <div
@@ -120,7 +135,7 @@ const Demo = () => {
         </div>
       </div>
 
-      {/* Display Result */}
+      {/* Display Article Result */}
       <div className='my-10 max-w-full flex justify-center items-center'>
         {isFetching ? (
           <img src={loader} alt='loader' className='w-20 h-20 object-contain' />
@@ -146,6 +161,23 @@ const Demo = () => {
             </div>
           )
         )}
+      </div>
+
+      {/* Display Request Remaining with Tooltip */}
+      <div className='p-10'>
+        <div className='group relative'>
+          <button type='button' className='fixed bottom-3 right-3 font-inter font-bold text-lg p-2 orange_gradient'>
+            {remainingRequests}
+          </button>
+          <span
+            className={`pointer-events-none fixed bottom-3 right-16 
+            font-inter p-2 text-lg font-bold border-black border-2 rounded-lg
+            bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0
+            transition-opacity group-hover:opacity-100`}
+          >
+            OpenAI Remaining Request For This Month
+          </span>
+        </div>
       </div>
     </section>
   );
